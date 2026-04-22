@@ -1,0 +1,38 @@
+{
+  "timestamp": "2026-04-22T22:21:45.047Z",
+  "gameTimeSec": 154.76000000000002,
+  "activeTimeSec": 12.048,
+  "totalTimeSec": 163.685,
+  "steps": {
+    "roomCreation": 0.319,
+    "playerJoin": 1.734,
+    "stateCheck": 1.84,
+    "botFill": 58.779,
+    "round1": {
+      "total": 42.104,
+      "waitRoundStart": 2.043,
+      "selection": 4.346,
+      "buyBoost": 2.415,
+      "waitBoostWindow": 25.228,
+      "checkResults": 1.917
+    },
+    "round2": {
+      "total": 53.877,
+      "selection": 1.394,
+      "waitCompleted": 40.173
+    }
+  },
+  "rooms": {
+    "total": 20,
+    "created": 20,
+    "filled": 20
+  },
+  "events": {
+    "roomStarted": 400,
+    "round1Started": 20,
+    "round2Started": 20,
+    "weightsRevealed": 0,
+    "boostWindow": 40,
+    "roundCompleted": 40
+  }
+}

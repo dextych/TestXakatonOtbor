@@ -1,0 +1,28 @@
+{
+  "name": "xakatonkubok",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "user-generation": "node userGeneration/user-generation.js",
+    "join-room": "jest joinRoomOldVersion/join-room.spec.js",
+    "get-token": "node getTokenUser/get-token.js",
+    "create-and-join": "jest mainTest/create-and-join-lobbies.spec.js",
+    "create-scheduled-room": "jest createScheduledRoom/create-scheduled-rooms.spec.js",
+    "check-repeat": "jest createScheduledRoom/check-repeated-room.spec.js",
+    "test:balance": "jest testBalance/balance-operations.spec.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.3.0",
+    "jest": "^30.3.0"
+  }
+}

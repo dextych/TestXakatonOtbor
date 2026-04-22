@@ -1,0 +1,16 @@
+# Зависимости
+node_modules/
+
+# Логи
+*.log
+npm-debug.log*
+
+# Временные файлы
+*.tmp
+.DS_Store
+
+*.local
+
+# IDE
+.vscode/
+.idea/
