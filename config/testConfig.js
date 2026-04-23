@@ -4,13 +4,13 @@ module.exports = {
     GAME_URL: 'http://92.51.23.102:8081',
     
     //АВТОРИЗАЦИЯ
-    ADMIN_TOKEN: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2NGYzNjZmZS1hM2VkLTRhYTQtOTQwZi1lNGRkZTI5NzMxZjEiLCJyb2xlcyI6WyJhZG1pbiJdLCJ1c2VybmFtZSI6IkRleHlMb3JubiIsImlhdCI6MTc3Njk0NDk5NiwiZXhwIjoxNzc3MDMxMzk2fQ.mHADoC3ZSYaNbh6ea0dOGAZMd9o2iIr1WvMhpIztaB31h336mpa_b6W4jZubIiKI8-b38-fQUGJXiKd6QIZhCw',
+    ADMIN_TOKEN: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4ZTA3ZmQ5MC0yY2Q4LTQzNjItYjg4MS0yNGRhNTBmMWQwMWUiLCJyb2xlcyI6WyJhZG1pbiJdLCJ1c2VybmFtZSI6ItCd0LjQutC40Ycg0JrQvtGB0YLRi9C70LXQsiIsImlhdCI6MTc3Njk1ODE5NywiZXhwIjoxNzc3MDQ0NTk3fQ.YQMo3okk5bvKkXbABziZ8MNDnR-6yusdnVHNXSrLX-x4q-41QpoHb9aRVo_n6gPU9ZNo-IUGdA4yCYJDtAa0-g',
     
     //ГЕНЕРАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
     USER_GENERATION: {
         count: 100,                          // Количество пользователей (N)
-        phonePrefix: '+79228310',            // Префикс номера телефона
-        usernamePrefix: 'dexytest',        // Префикс имени пользователя
+        phonePrefix: '+792283310',            // Префикс номера телефона
+        usernamePrefix: 'dextytest',        // Префикс имени пользователя
         password: '123455cc',               // Общий пароль
         phonePadLength: 4                   // Длина дополнения номера (0001, 0002...)
     },
@@ -18,9 +18,9 @@ module.exports = {
     //КОНФИГУРАЦИЯ КОМНАТЫ
     ROOM_CONFIG: {
         maxPlayers: 7,
-        entryFeeAmount: 35000,
+        entryFeeAmount: 135000,
         winnerPayoutPercentage: 80,
-        boostCostAmount: 7000,
+        boostCostAmount: 17000,
         boostEnabled: true,
         maxBarrelSelection: 3
     },
@@ -49,7 +49,7 @@ module.exports = {
         repeatInterval: 'EVERY_30_MIN'
     },
     
-    LOBBIES_COUNT: 20,
+    LOBBIES_COUNT: 2,
     PLAYERS_PER_LOBBY: 5, 
     
     //ТОКЕНЫ (заполняется автоматически)

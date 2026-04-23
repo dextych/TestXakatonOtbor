@@ -139,14 +139,14 @@ async function round1(results, socketEvents, timingStats) {
         return { success: false };
     }
     
-        // 3. 🔧 ПОКУПКА БУСТА ВО ВРЕМЯ РАУНДА (СРАЗУ после выбора бочек)
-    console.log('\n3. Покупка буста во время раунда...');
+        // 3. ПОКУПКА БУСТА ВО ВРЕМЯ РАУНДА (СРАЗУ после выбора бочек)
+    console.log('\n3. Покупка буста во время раунда');
     
     const buyBoostStart = Date.now();
     let boostsPurchased = 0;
     const purchasedRooms = [];
     
-    // 🔧 Покупаем буст СРАЗУ после выбора бочек, не ждем никаких событий
+    // Покупаем буст СРАЗУ после выбора бочек, не ждем никаких событий
     for (const roomResult of selectionRound1Results) {
         try {
             // Покупаем буст для ПЕРВОГО игрока в комнате (как и было)
@@ -177,7 +177,7 @@ async function round1(results, socketEvents, timingStats) {
     console.log(`\nКуплено бустов: ${boostsPurchased}/${selectionRound1Results.length}`);
     
     // 4. Ждем BOOST_WINDOW_STARTED (сервер автоматически применяет буст)
-    console.log('\n4. Ожидание BOOST_WINDOW_STARTED (автоматическое применение буста)...');
+    console.log('\n4. Ожидание BOOST_WINDOW_STARTED (автоматическое применение буста)');
     
     const waitBoostWindowStart = Date.now();
     const eventsBeforeWindow = socketEvents.length;
@@ -211,7 +211,7 @@ async function round1(results, socketEvents, timingStats) {
     }
     
     // 5. Ждем ROUND_COMPLETED
-    console.log('\n5. Ожидание ROUND_COMPLETED...');
+    console.log('\n5. Ожидание ROUND_COMPLETED');
     
     const eventsBeforeCompleted = socketEvents.length;
     let round1CompletedEvents = [];
