@@ -28,21 +28,21 @@ async function registerUser(user, index) {
         });
         
         if (response.ok) {
-            console.log(`✅ [${index + 1}/${count}] Зарегистрирован: ${user.username}`);
+            console.log(`[${index + 1}/${count}] Зарегистрирован: ${user.username}`);
             return { success: true, user };
         } else {
             const error = await response.text();
-            console.log(`❌ [${index + 1}/${count}] Ошибка: ${user.username} - ${response.status}`);
+            console.log(`[${index + 1}/${count}] Ошибка: ${user.username} - ${response.status}`);
             return { success: false, user, error };
         }
     } catch (error) {
-        console.log(`❌ [${index + 1}/${count}] Ошибка сети: ${user.username}`);
+        console.log(`[${index + 1}/${count}] Ошибка сети: ${user.username}`);
         return { success: false, user, error: error.message };
     }
 }
 
 async function registerAllParallel() {
-    console.log(`🚀 Начинаем ПАРАЛЛЕЛЬНУЮ регистрацию ${count} пользователей...`);
+    console.log(`Начинаем ПАРАЛЛЕЛЬНУЮ регистрацию ${count} пользователей...`);
     console.log(`   Префикс телефона: ${phonePrefix}`);
     console.log(`   Префикс имени: ${usernamePrefix}`);
     console.log(`   Пароль: ${password}\n`);
@@ -61,10 +61,10 @@ async function registerAllParallel() {
     
     const duration = (Date.now() - startTime) / 1000;
     
-    console.log('\n📊 Статистика:');
-    console.log(`   ✅ Успешно: ${successful}`);
-    console.log(`   ❌ Ошибок: ${failed}`);
-    console.log(`   ⏱️ Время: ${duration.toFixed(2)}с`);
+    console.log('\nСтатистика:');
+    console.log(`   Успешно: ${successful}`);
+    console.log(`   Ошибок: ${failed}`);
+    console.log(`   Время: ${duration.toFixed(2)}с`);
     
     return results;
 }

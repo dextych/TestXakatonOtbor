@@ -89,7 +89,7 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents, playersPe
                                 const joinResult = await roomApi.joinRoom(roomId, player.token);
                                 
                                 if (joinResult.success) {
-                                    console.log(`[Комната ${roomIndex + 1}] ✅ Игрок ${player.index + 1} вошел`);
+                                    console.log(`[Комната ${roomIndex + 1}] Игрок ${player.index + 1} вошел`);
                                     return {
                                         playerIndex: player.index,
                                         participantId: joinResult.participantId,
@@ -99,7 +99,7 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents, playersPe
                                     const errorText = typeof joinResult.data === 'string' 
                                         ? joinResult.data 
                                         : JSON.stringify(joinResult.data);
-                                    console.error(`[Комната ${roomIndex + 1}] ❌ Игрок ${player.index + 1}: ${joinResult.status} - ${errorText}`);
+                                    console.error(`[Комната ${roomIndex + 1}] Игрок ${player.index + 1}: ${joinResult.status} - ${errorText}`);
                                     return {
                                         playerIndex: player.index,
                                         success: false,
@@ -108,7 +108,7 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents, playersPe
                                     };
                                 }
                             } catch (error) {
-                                console.error(`[Комната ${roomIndex + 1}] ❌ Игрок ${player.index + 1}: ${error.message}`);
+                                console.error(`[Комната ${roomIndex + 1}] Игрок ${player.index + 1}: ${error.message}`);
                                 return {
                                     playerIndex: player.index,
                                     success: false,
@@ -166,10 +166,10 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents, playersPe
     const duration = (Date.now() - stepStart) / 1000;
     timingStats.recordStep('playerJoin', duration);
     
-    console.log(`\n📊 Статистика входа:`);
-    console.log(`   ✅ Успешно вошло игроков: ${successfulPlayers}/${totalExpectedPlayers}`);
-    console.log(`   ❌ Комнат с ошибками: ${failedRooms}/${roomIds.length}`);
-    console.log(`   ⏱️ Время: ${duration.toFixed(2)}с`);
+    console.log(`\nСтатистика входа:`);
+    console.log(`   Успешно вошло игроков: ${successfulPlayers}/${totalExpectedPlayers}`);
+    console.log(`   Комнат с ошибками: ${failedRooms}/${roomIds.length}`);
+    console.log(`   Время: ${duration.toFixed(2)}с`);
     
     allResults.filter(r => !r.success).forEach(r => {
         console.error(`   Комната ${r.roomIndex + 1}: ${r.error}`);

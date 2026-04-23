@@ -27,7 +27,7 @@ describe('Проверка создания повторной комнаты и
     test('Шаг 1: Поиск повторных комнат', async () => {
         Logger.header('ШАГ 1: ПОИСК ПОВТОРНЫХ КОМНАТ');
         
-        console.log('🔍 Ищем комнаты с конфигурацией:');
+        console.log('Ищем комнаты с конфигурацией:');
         console.log(`  maxPlayers: ${targetConfig.maxPlayers}`);
         console.log(`  entryFeeAmount: ${targetConfig.entryFeeAmount}`);
         console.log(`  winnerPayoutPercentage: ${targetConfig.winnerPayoutPercentage}`);
@@ -48,7 +48,7 @@ describe('Проверка создания повторной комнаты и
         const data = await response.json();
         const rooms = data.rooms || data || [];
         
-        console.log(`\n📊 Всего комнат в системе: ${rooms.length}`);
+        console.log(`\nВсего комнат в системе: ${rooms.length}`);
         
         // Ищем комнаты с такой же конфигурацией, исключая SCHEDULED
         const matchingRooms = rooms.filter(room => {
@@ -73,9 +73,9 @@ describe('Проверка создания повторной комнаты и
         });
         
         if (matchingRooms.length >= 2) {
-            console.log(`\n✅ Найдено ${matchingRooms.length} повторных комнат`);
+            console.log(`\nНайдено ${matchingRooms.length} повторных комнат`);
         } else {
-            console.log(`\n⚠️ Найдена только ${matchingRooms.length} комната. Продолжаем с тем, что есть.`);
+            console.log(`\nНайдена только ${matchingRooms.length} комната. Продолжаем с тем, что есть.`);
         }
         
         const uniqueIds = new Set(matchingRooms.map(r => r.id));
@@ -101,7 +101,7 @@ describe('Проверка создания повторной комнаты и
         
         testContext.roomIds = availableRoomIds.slice(0, 1); // Берем только 1 комнату для теста
         
-        console.log(`\n✅ Выбрана комната для тестирования: ${testContext.roomIds[0]?.slice(0, 8)}`);
+        console.log(`\nВыбрана комната для тестирования: ${testContext.roomIds[0]?.slice(0, 8)}`);
         
         expect(testContext.roomIds.length).toBeGreaterThan(0);
         
@@ -120,7 +120,7 @@ describe('Проверка создания повторной комнаты и
         testContext.results = results;
         testContext.stompClients = stompClients;
         
-        console.log(`\n✅ Успешно вошли в ${successful}/${testContext.roomIds.length} комнат`);
+        console.log(`\nУспешно вошли в ${successful}/${testContext.roomIds.length} комнат`);
         
         expect(successful).toBeGreaterThan(0);
         
@@ -157,7 +157,7 @@ describe('Проверка создания повторной комнаты и
                     // 🔧 Проверяем что игра активна или уже в раунде
                     if (data.status === 'ACTIVE' || data.status === 'ROUND_1' || data.status === 'ROUND_2') {
                         gameActive = true;
-                        console.log(`\n✅ Игра активна! Статус: ${data.status}`);
+                        console.log(`\nИгра активна! Статус: ${data.status}`);
                     }
                 }
             } catch (error) {
@@ -171,7 +171,7 @@ describe('Проверка создания повторной комнаты и
             
             if (hasRoomStarted && !gameActive) {
                 gameActive = true;
-                console.log(`\n✅ Получено событие ROOM_STARTED`);
+                console.log(`\nПолучено событие ROOM_STARTED`);
             }
         }
         
@@ -192,13 +192,13 @@ describe('Проверка создания повторной комнаты и
         testContext.round1Results = round1Result;
         
         if (round1Result.success) {
-            console.log(`\n✅ Раунд 1 завершен`);
+            console.log(`\nРаунд 1 завершен`);
             console.log(`  Выбор бочек: ${round1Result.stats.selectionCount}/${round1Result.readyRooms?.length || 0}`);
             console.log(`  Результаты: ${round1Result.stats.resultsCount}`);
             
             expect(round1Result.stats.selectionCount).toBeGreaterThan(0);
         } else {
-            console.log(`\n⚠️ Раунд 1 не удался, но продолжаем`);
+            console.log(`\nРаунд 1 не удался, но продолжаем`);
         }
         
     }, 120000);
@@ -215,10 +215,10 @@ describe('Проверка создания повторной комнаты и
         );
         
         if (round2Result.success) {
-            console.log(`\n✅ Раунд 2 завершен`);
+            console.log(`\nРаунд 2 завершен`);
             console.log(`  Комнат FINISHED: ${round2Result.roomsFinished}/${round2Result.totalRooms}`);
         } else {
-            console.log(`\n⚠️ Раунд 2 не удался`);
+            console.log(`\nРаунд 2 не удался`);
         }
         
     }, 120000);
@@ -245,7 +245,7 @@ describe('Проверка создания повторной комнаты и
         }
         
         console.log(`\n=== ТЕСТ ЗАВЕРШЕН ===`);
-        console.log(`✅ Комната протестирована`);
+        console.log(`Комната протестирована`);
         
         expect(true).toBe(true);
         

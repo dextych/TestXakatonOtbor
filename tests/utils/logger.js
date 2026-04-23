@@ -36,15 +36,15 @@ class Logger {
     }
 
     static error(message) {
-        console.error(`❌ ${message}`);
+        console.error(`${message}`);
     }
 
     static warn(message) {
-        console.warn(`⚠️ ${message}`);
+        console.warn(`${message}`);
     }
 
     static success(message) {
-        console.log(`✅ ${message}`);
+        console.log(`${message}`);
     }
 }
 

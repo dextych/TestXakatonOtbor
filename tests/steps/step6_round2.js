@@ -18,7 +18,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     }
     
     // 1. Определяем кто прошел в раунд 2
-    console.log('1. Проверка кто прошёл в раунд 2...');
+    console.log('1. Проверка кто прошёл в раунд 2');
     
     const qualifiedRooms = [];
     
@@ -55,7 +55,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     }
     
     // 2. Ждем ROUND_STARTED для раунда 2
-    console.log('\n2. Ожидание ROUND_STARTED для раунда 2...');
+    console.log('\n2. Ожидание ROUND_STARTED для раунда 2');
     
     const waitStart = Date.now();
     const roomsReady = new Set();
@@ -88,8 +88,8 @@ async function round2(results, round1Results, socketEvents, timingStats) {
         return { success: false };
     }
     
-    // 3. 🔧 ПАРАЛЛЕЛЬНЫЙ выбор бочек для ВСЕХ прошедших игроков
-    console.log('\n3. Выбор бочек в раунде 2 (параллельно)...');
+    // 3. ПАРАЛЛЕЛЬНЫЙ выбор бочек для ВСЕХ прошедших игроков
+    console.log('\n3. Выбор бочек в раунде 2 (параллельно)');
     
     const selectStart = Date.now();
     
@@ -99,7 +99,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
             
             let roomSelections = 0;
             
-            // 🔧 Параллельный выбор для всех прошедших игроков
+            // Параллельный выбор для всех прошедших игроков
             const playerPromises = [];
             
             for (let i = 0; i < playersPerLobby; i++) {
@@ -144,7 +144,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     console.log(`\nРаунд 2: выбор сделан в ${roomsWithSelection} случаях`);
     
     // 4. Ждем ROUND_COMPLETED для раунда 2
-    console.log('\n4. Ожидание ROUND_COMPLETED для раунда 2...');
+    console.log('\n4. Ожидание ROUND_COMPLETED для раунда 2');
     
     const completedStart = Date.now();
     const eventsBeforeCompleted2 = socketEvents.length;
@@ -161,7 +161,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     console.log(`ROUND_COMPLETED в ${round2CompletedEvents.length} комнатах`);
     
     // 5. 🔧 ПАРАЛЛЕЛЬНАЯ проверка финальных результатов
-    console.log('\n5. Проверка финальных результатов (параллельно)...');
+    console.log('\n5. Проверка финальных результатов (параллельно).');
     
     const roomApi = require('../../api/roomApi');
     
@@ -181,7 +181,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     const statusResults = await Promise.all(statusPromises);
     const roomsFinished = statusResults.filter(r => r).length;
     
-    console.log(`\n=== РЕЗУЛЬТАТЫ РАУНДА 2 ===`);
+    console.log(`\nРЕЗУЛЬТАТЫ РАУНДА 2`);
     console.log(`Выбор бочек: ${roomsWithSelection}`);
     console.log(`Комнат со статусом FINISHED: ${roomsFinished}/${successfulRooms.length}`);
     

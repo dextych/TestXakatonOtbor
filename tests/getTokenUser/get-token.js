@@ -6,7 +6,7 @@ const BASE_URL = config.BASE_URL;
 const { count, phonePrefix, password, phonePadLength } = config.USER_GENERATION;
 
 async function quickGetTokens() {
-    console.log(`🚀 Начинаем ПАРАЛЛЕЛЬНОЕ получение токенов для ${count} пользователей...`);
+    console.log(`Начинаем ПАРАЛЛЕЛЬНОЕ получение токенов для ${count} пользователей...`);
     console.log(`   Префикс телефона: ${phonePrefix}\n`);
     
     const startTime = Date.now();
@@ -23,15 +23,15 @@ async function quickGetTokens() {
             .then(async (r) => {
                 const data = await r.json();
                 if (r.ok) {
-                    console.log(`✅ [${i}/${count}] Токен получен: ${phone}`);
+                    console.log(`[${i}/${count}] Токен получен: ${phone}`);
                     return { phone, token: data.token || data.accessToken };
                 } else {
-                    console.log(`❌ [${i}/${count}] Ошибка: ${phone} - ${r.status}`);
+                    console.log(`[${i}/${count}] Ошибка: ${phone} - ${r.status}`);
                     return null;
                 }
             })
             .catch((error) => {
-                console.log(`❌ [${i}/${count}] Ошибка сети: ${phone}`);
+                console.log(`[${i}/${count}] Ошибка сети: ${phone}`);
                 return null;
             })
         );
@@ -45,11 +45,11 @@ async function quickGetTokens() {
     const outputPath = path.join(__dirname, '../..', 'tokens.json');
     fs.writeFileSync(outputPath, JSON.stringify(tokens, null, 2));
     
-    console.log('\n📊 Статистика:');
-    console.log(`   ✅ Получено токенов: ${tokens.length}/${count}`);
-    console.log(`   ❌ Ошибок: ${count - tokens.length}`);
-    console.log(`   ⏱️ Время: ${duration.toFixed(2)}с`);
-    console.log(`   💾 Сохранено в: ${outputPath}`);
+    console.log('\nСтатистика:');
+    console.log(`   Получено токенов: ${tokens.length}/${count}`);
+    console.log(`   Ошибок: ${count - tokens.length}`);
+    console.log(`   Время: ${duration.toFixed(2)}с`);
+    console.log(`   Сохранено в: ${outputPath}`);
 }
 
 quickGetTokens();

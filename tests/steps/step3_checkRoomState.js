@@ -17,9 +17,9 @@ async function checkRoomState(results, timingStats, expectedPlayers) {
                 // 🔧 Проверяем что игроков столько, сколько ожидалось из конфига
                 if (data.currentPlayerCount === expectedPlayers && data.status === 'WAITING') {
                     correct++;
-                    console.log(`  ✅ Комната ${room.roomIndex + 1}: ${data.currentPlayerCount}/${expectedPlayers} игроков, статус ${data.status}`);
+                    console.log(`  Комната ${room.roomIndex + 1}: ${data.currentPlayerCount}/${expectedPlayers} игроков, статус ${data.status}`);
                 } else {
-                    console.log(`  ⚠️ Комната ${room.roomIndex + 1}: ${data.currentPlayerCount}/${expectedPlayers} игроков, статус ${data.status}`);
+                    console.log(`  Комната ${room.roomIndex + 1}: ${data.currentPlayerCount}/${expectedPlayers} игроков, статус ${data.status}`);
                 }
             }
         } catch (error) {

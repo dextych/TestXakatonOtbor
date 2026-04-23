@@ -16,7 +16,7 @@ describe('Тестирование баланса пользователя (пу
     beforeAll(async () => {
         Logger.header('ПОДГОТОВКА ТЕСТА БАЛАНСА');
         
-        console.log('Инициализация тестовых пользователей...');
+        console.log('Инициализация тестовых пользователей');
         
         for (let i = 0; i < Math.min(USER_IDS.length, config.TOKENS.length); i++) {
             const tokenData = config.TOKENS[i];
@@ -34,14 +34,14 @@ describe('Тестирование баланса пользователя (пу
                     initialBalance: balanceResult.success ? balanceResult.data : null
                 });
                 
-                console.log(`  ✅ Пользователь ${i}: userId=${userId.slice(0, 8)}..., available=${balanceResult.data?.available}`);
+                console.log(`Пользователь ${i}: userId=${userId.slice(0, 8)}..., available=${balanceResult.data?.available}`);
                 
             } catch (error) {
-                console.log(`  ❌ Пользователь ${i}: ошибка - ${error.message}`);
+                console.log(`Пользователь ${i}: ошибка - ${error.message}`);
             }
         }
         
-        console.log(`\n✅ Подготовлено пользователей: ${testUsers.length}`);
+        console.log(`\nПодготовлено пользователей: ${testUsers.length}`);
         
         if (testUsers.length === 0) {
             throw new Error('Нет пользователей для тестирования!');
@@ -62,7 +62,7 @@ describe('Тестирование баланса пользователя (пу
         expect(result.data).toHaveProperty('available');
         expect(result.data).toHaveProperty('reserved');
         
-        console.log(`✅ Баланс получен:`);
+        console.log(`Баланс получен:`);
         console.log(`  available: ${result.data.available}`);
         console.log(`  reserved: ${result.data.reserved}`);
         
@@ -81,7 +81,7 @@ describe('Тестирование баланса пользователя (пу
             reserved: expect.any(Number)
         });
         
-        console.log(`✅ Структура ответа корректна`);
+        console.log(`Структура ответа корректна`);
         
     }, 10000);
     
@@ -94,7 +94,7 @@ describe('Тестирование баланса пользователя (пу
         expect(result.data.available).toBeGreaterThanOrEqual(0);
         expect(result.data.reserved).toBeGreaterThanOrEqual(0);
         
-        console.log(`✅ Баланс не отрицательный`);
+        console.log(`Баланс не отрицательный`);
         console.log(`  available: ${result.data.available} (>= 0)`);
         console.log(`  reserved: ${result.data.reserved} (>= 0)`);
         
@@ -130,8 +130,8 @@ describe('Тестирование баланса пользователя (пу
     test('Тест 5: Internal API недоступен (ожидаемо)', async () => {
         Logger.header('ТЕСТ 5: INTERNAL API (ПРОПУЩЕН)');
         
-        console.log('⚠️ Internal API (/internal/*) предназначен только для бэкенда');
-        console.log('✅ Тестирование internal API не требуется');
+        console.log('Internal API (/internal/*) предназначен только для бэкенда');
+        console.log('Тестирование internal API не требуется');
         
         expect(true).toBe(true);
         

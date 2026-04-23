@@ -43,7 +43,7 @@ async function round1(results, socketEvents, timingStats) {
     console.log(`\nГотово комнат: ${roomsReady.size}/${successfulRooms.length}`);
     
     if (roomsReady.size === 0) {
-        console.log('❌ ROUND_STARTED не получен ни для одной комнаты, пропускаем тест');
+        console.log('ROUND_STARTED не получен ни для одной комнаты, пропускаем тест');
         return { success: false };
     }
     
@@ -135,7 +135,7 @@ async function round1(results, socketEvents, timingStats) {
     console.log(`\nРаунд 1: выбор сделан в ${selectionRound1Results.length}/${readyRoomsList.length} комнатах`);
     
     if (selectionRound1Results.length === 0) {
-        console.log('❌ Выбор бочек не удался ни в одной комнате');
+        console.log('Выбор бочек не удался ни в одной комнате');
         return { success: false };
     }
     
@@ -160,16 +160,16 @@ async function round1(results, socketEvents, timingStats) {
             if (boostResponse.success) {
                 boostsPurchased++;
                 purchasedRooms.push(roomResult);
-                console.log(`[Комната ${roomResult.roomIndex + 1}] ✅ Буст куплен`);
+                console.log(`[Комната ${roomResult.roomIndex + 1}] Буст куплен`);
             } else {
                 const errorText = typeof boostResponse.data === 'string' 
                     ? boostResponse.data 
                     : JSON.stringify(boostResponse.data);
-                console.log(`[Комната ${roomResult.roomIndex + 1}] ❌ Буст не куплен: ${errorText}`);
+                console.log(`[Комната ${roomResult.roomIndex + 1}] Буст не куплен: ${errorText}`);
             }
             
         } catch (error) {
-            console.error(`[Комната ${roomResult.roomIndex + 1}] ❌ Ошибка при покупке буста:`, error.message);
+            console.error(`[Комната ${roomResult.roomIndex + 1}] Ошибка при покупке буста:`, error.message);
         }
     }
     
@@ -254,7 +254,7 @@ async function round1(results, socketEvents, timingStats) {
     
     subSteps.checkResults = (Date.now() - checkResultsStart) / 1000;
     
-    console.log(`\n=== РЕЗУЛЬТАТЫ РАУНДА 1 ===`);
+    console.log(`\nРЕЗУЛЬТАТЫ РАУНДА 1`);
     console.log(`Готово комнат: ${roomsReady.size}/${successfulRooms.length}`);
     console.log(`Выбор бочек: ${selectionRound1Results.length}/${readyRoomsList.length}`);
     console.log(`WEIGHTS_REVEALED: ${allWeightsEvents.length}`);
