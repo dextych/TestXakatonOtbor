@@ -1,24 +1,34 @@
 const GameWebSocketClient = require('../websocket/gameWebSocketClient');
-const roomApi = require('../api/roomApi');
-const config = require('../config/testConfig');
+const roomApi = require('../../api/roomApi');
+const config = require('../../config/testConfig');
 const Logger = require('../utils/logger');
 const { sleep } = require('../utils/helpers');
 
-async function joinPlayers(roomIds, tokens, timingStats, socketEvents) {
+async function joinPlayers(roomIds, tokens, timingStats, socketEvents, playersPerLobby) {
     const stepStart = Date.now();
-    Logger.step(`Вход игроков в ${roomIds.length} комнат`);
+    Logger.step(`Вход игроков в ${roomIds.length} комнат (по ${playersPerLobby} игроков)`);
     
     const stompClients = [];
     const results = [];
     
     async function joinSingleRoom(roomIndex) {
         const roomId = roomIds[roomIndex];
-        const user1Token = tokens[roomIndex * 2]?.token;
-        const user2Token = tokens[roomIndex * 2 + 1]?.token;
         
-        if (!user1Token || !user2Token) {
+        // 🔧 Собираем токены для N игроков из конфига
+        const playerTokens = [];
+        for (let i = 0; i < playersPerLobby; i++) {
+            const tokenIndex = roomIndex * playersPerLobby + i;
+            const token = tokens[tokenIndex]?.token;
+            if (token) {
+                playerTokens.push({ index: i, token });
+            }
+        }
+        
+        if (playerTokens.length === 0) {
             return { roomIndex, success: false, error: 'Нет токенов' };
         }
+        // Используем токен первого игрока для WebSocket подключения
+        const primaryToken = playerTokens[0].token;
         
         return new Promise((resolve) => {
             const client = new GameWebSocketClient(config.BASE_URL);
@@ -27,11 +37,11 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents) {
                 resolve({ roomIndex, success: false, error: 'Таймаут' });
             }, 15000);
             
-            client.connect(user1Token)
+            client.connect(primaryToken)
                 .then(async () => {
                     console.log(`[Комната ${roomIndex + 1}] WebSocket подключен`);
                     
-                    // Подписки
+                    // Подписки на события
                     client.subscribe(`/topic/room/${roomId}`, (data) => {
                         if (data.type === 'ROOM_UPDATED') {
                             socketEvents.push({ roomId, type: 'ROOM_UPDATED', data });
@@ -59,7 +69,6 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents) {
                             console.log(`[Комната ${roomIndex + 1}] ROUND_STARTED: раунд ${data.roundNumber}`);
                         } else if (data.type === 'BOOST_WINDOW_STARTED') {
                             console.log(`[Комната ${roomIndex + 1}] BOOST_WINDOW_STARTED`);
-                            // 🔧 Выводим эффекты буста если есть
                             if (data.boostEffects) {
                                 console.log(`  Эффекты буста:`, data.boostEffects);
                             }
@@ -74,51 +83,55 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents) {
                     });
                     
                     try {
-                        // Вход первого игрока
-                        const join1Result = await roomApi.joinRoom(roomId, user1Token);
+                        // 🔧 ПАРАЛЛЕЛЬНЫЙ ВХОД ВСЕХ ИГРОКОВ
+                        const joinPromises = playerTokens.map(async (player) => {
+                            try {
+                                const joinResult = await roomApi.joinRoom(roomId, player.token);
+                                
+                                if (joinResult.success) {
+                                    console.log(`[Комната ${roomIndex + 1}] ✅ Игрок ${player.index + 1} вошел`);
+                                    return {
+                                        playerIndex: player.index,
+                                        participantId: joinResult.participantId,
+                                        success: true
+                                    };
+                                } else {
+                                    const errorText = typeof joinResult.data === 'string' 
+                                        ? joinResult.data 
+                                        : JSON.stringify(joinResult.data);
+                                    console.error(`[Комната ${roomIndex + 1}] ❌ Игрок ${player.index + 1}: ${joinResult.status} - ${errorText}`);
+                                    return {
+                                        playerIndex: player.index,
+                                        success: false,
+                                        status: joinResult.status,
+                                        error: errorText
+                                    };
+                                }
+                            } catch (error) {
+                                console.error(`[Комната ${roomIndex + 1}] ❌ Игрок ${player.index + 1}: ${error.message}`);
+                                return {
+                                    playerIndex: player.index,
+                                    success: false,
+                                    error: error.message
+                                };
+                            }
+                        });
                         
-                        if (!join1Result.success) {
-                            clearTimeout(timeout);
-                            await client.disconnect();
-                            
-                            const errorText = typeof join1Result.data === 'string' 
-                                ? join1Result.data 
-                                : JSON.stringify(join1Result.data);
-                            console.error(`[Комната ${roomIndex + 1}] P1 error body: ${errorText}`);
-                            
-                            resolve({ 
-                                roomIndex, 
-                                success: false, 
-                                error: `P1: ${join1Result.status} - ${errorText}` 
-                            });
-                            return;
-                        }
-                        
-                        await sleep(500);
-                        
-                        // Вход второго игрока
-                        const join2Result = await roomApi.joinRoom(roomId, user2Token);
-                        
-                        if (!join2Result.success) {
-                            clearTimeout(timeout);
-                            await client.disconnect();
-                            resolve({ 
-                                roomIndex, 
-                                success: false, 
-                                error: `P2: ${join2Result.status}` 
-                            });
-                            return;
-                        }
+                        const joinResults = await Promise.all(joinPromises);
                         
                         clearTimeout(timeout);
                         stompClients.push(client);
                         
+                        const successfulJoins = joinResults.filter(r => r.success);
+                        const allSuccess = successfulJoins.length === playerTokens.length;
+                        
                         resolve({
                             roomIndex,
                             roomId,
-                            success: true,
-                            player1Id: join1Result.participantId,
-                            player2Id: join2Result.participantId,
+                            success: allSuccess,
+                            playersJoined: successfulJoins.length,
+                            totalPlayers: playerTokens.length,
+                            joinResults: joinResults,
                             client
                         });
                         
@@ -136,6 +149,7 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents) {
         });
     }
     
+    // 🔧 ПАРАЛЛЕЛЬНЫЙ ВХОД ВО ВСЕ КОМНАТЫ
     const promises = [];
     for (let i = 0; i < roomIds.length; i++) {
         promises.push(joinSingleRoom(i));
@@ -144,21 +158,30 @@ async function joinPlayers(roomIds, tokens, timingStats, socketEvents) {
     const allResults = await Promise.all(promises);
     results.push(...allResults);
     
-    const successful = allResults.filter(r => r.success).length;
-    const failed = allResults.filter(r => !r.success).length;
-    
-    allResults.filter(r => !r.success).forEach(r => {
-        console.error(`Комната ${r.roomIndex + 1}: ${r.error}`);
-    });
+    // 🔧 Считаем статистику по ИГРОКАМ, а не по комнатам
+    const totalExpectedPlayers = roomIds.length * playersPerLobby;
+    const successfulPlayers = allResults.reduce((sum, r) => sum + (r.playersJoined || 0), 0);
+    const failedRooms = allResults.filter(r => !r.success).length;
     
     const duration = (Date.now() - stepStart) / 1000;
     timingStats.recordStep('playerJoin', duration);
     
-    console.log(`\nУспешно заполнено: ${successful}/${roomIds.length}`);
-    console.log(`Ошибок: ${failed}`);
-    console.log(`Время: ${duration.toFixed(2)}с`);
+    console.log(`\n📊 Статистика входа:`);
+    console.log(`   ✅ Успешно вошло игроков: ${successfulPlayers}/${totalExpectedPlayers}`);
+    console.log(`   ❌ Комнат с ошибками: ${failedRooms}/${roomIds.length}`);
+    console.log(`   ⏱️ Время: ${duration.toFixed(2)}с`);
     
-    return { results: allResults, stompClients, successful, failed };
+    allResults.filter(r => !r.success).forEach(r => {
+        console.error(`   Комната ${r.roomIndex + 1}: ${r.error}`);
+    });
+    
+    return { 
+        results: allResults, 
+        stompClients, 
+        successful: successfulPlayers,
+        totalExpected: totalExpectedPlayers,
+        failedRooms 
+    };
 }
 
 module.exports = joinPlayers;

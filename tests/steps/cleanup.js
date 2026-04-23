@@ -87,7 +87,7 @@ async function cleanup(testContext, timingStats) {
     }
     
     // Сохраняем отчет в JSON
-    const config = require('../config/testConfig');
+    const config = require('../../config/testConfig');
     const report = {
         timestamp: new Date().toISOString(),
         gameTimeSec: gameTime,

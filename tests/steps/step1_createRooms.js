@@ -1,4 +1,4 @@
-const roomApi = require('../api/roomApi');
+const roomApi = require('../../api/roomApi');
 const Logger = require('../utils/logger');
 
 async function createRooms(lobbiesCount, timingStats) {

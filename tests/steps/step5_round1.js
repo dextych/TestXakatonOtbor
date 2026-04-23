@@ -1,5 +1,5 @@
-const roundApi = require('../api/roundApi');
-const config = require('../config/testConfig');
+const roundApi = require('../../api/roundApi');
+const config = require('../../config/testConfig');
 const Logger = require('../utils/logger');
 const { sleep } = require('../utils/helpers');
 
@@ -10,6 +10,7 @@ async function round1(results, socketEvents, timingStats) {
     Logger.header('РАУНД 1');
     
     const successfulRooms = results.filter(r => r.success);
+    const playersPerLobby = config.PLAYERS_PER_LOBBY;
     
     // 1. Ждем ROUND_STARTED для раунда 1
     console.log('1. Ожидание ROUND_STARTED для раунда 1...');
@@ -48,7 +49,7 @@ async function round1(results, socketEvents, timingStats) {
     
     const readyRoomsList = successfulRooms.filter(r => roomsReady.has(r.roomId));
     
-    // 2. Выбираем бочки
+    // 2. Выбираем бочки для ВСЕХ игроков
     console.log('\n2. Выбор 3 бочек в раунде 1...');
     
     const selectStart = Date.now();
@@ -56,44 +57,73 @@ async function round1(results, socketEvents, timingStats) {
     
     for (const room of readyRoomsList) {
         try {
-            const user1Token = config.TOKENS[room.roomIndex * 2]?.token;
-            const user2Token = config.TOKENS[room.roomIndex * 2 + 1]?.token;
+            // 🔧 Собираем токены ВСЕХ игроков в этой комнате
+            const playerTokens = [];
+            for (let i = 0; i < playersPerLobby; i++) {
+                const tokenIndex = room.roomIndex * playersPerLobby + i;
+                const token = config.TOKENS[tokenIndex]?.token;
+                if (token) {
+                    playerTokens.push({ index: i, token });
+                }
+            }
             
-            if (!user1Token || !user2Token) continue;
+            if (playerTokens.length === 0) continue;
             
-            const [barrels1Res, barrels2Res] = await Promise.all([
-                roundApi.getBarrels(room.roomId, 1, user1Token),
-                roundApi.getBarrels(room.roomId, 1, user2Token)
-            ]);
+            // 🔧 ПАРАЛЛЕЛЬНО получаем бочки для всех игроков
+            const barrelsPromises = playerTokens.map(async (player) => {
+                const barrelsRes = await roundApi.getBarrels(room.roomId, 1, player.token);
+                return { 
+                    playerIndex: player.index, 
+                    token: player.token, 
+                    success: barrelsRes.success, 
+                    status: barrelsRes.status,
+                    data: barrelsRes.data 
+                };
+            });
             
-            if (!barrels1Res.success || !barrels2Res.success) {
-                console.error(`[Комната ${room.roomIndex + 1}] Ошибка получения бочек: P1=${barrels1Res.status}, P2=${barrels2Res.status}`);
+            const barrelsResults = await Promise.all(barrelsPromises);
+            
+            // Проверяем что все получили бочки
+            const allGotBarrels = barrelsResults.every(r => r.success);
+            if (!allGotBarrels) {
+                const failed = barrelsResults.filter(r => !r.success);
+                console.error(`[Комната ${room.roomIndex + 1}] Ошибка получения бочек: ${failed.map(f => `P${f.playerIndex + 1}=${f.status}`).join(', ')}`);
                 continue;
             }
             
-            const barrels1 = barrels1Res.data;
-            const barrels2 = barrels2Res.data;
+            // 🔧 ПАРАЛЛЕЛЬНО выбираем бочки для всех игроков
+            const selectionPromises = barrelsResults.map(async (player) => {
+                const selected = player.data.slice(0, 3).map(b => b.id);
+                const selRes = await roundApi.selectBarrels(room.roomId, 1, selected, player.token);
+                return {
+                    playerIndex: player.playerIndex,
+                    token: player.token,
+                    success: selRes.success,
+                    status: selRes.status,
+                    barrels: player.data
+                };
+            });
             
-            const selected1 = barrels1.slice(0, 3).map(b => b.id);
-            const selected2 = barrels2.slice(0, 3).map(b => b.id);
+            const selectionResults = await Promise.all(selectionPromises);
             
-            const [sel1Res, sel2Res] = await Promise.all([
-                roundApi.selectBarrels(room.roomId, 1, selected1, user1Token),
-                roundApi.selectBarrels(room.roomId, 1, selected2, user2Token)
-            ]);
+            const successfulSelections = selectionResults.filter(r => r.success);
+            const failedSelections = selectionResults.filter(r => !r.success);
             
-            if (sel1Res.success && sel2Res.success) {
-                console.log(`[Комната ${room.roomIndex + 1}] Бочки выбраны`);
+            if (failedSelections.length > 0) {
+                console.error(`[Комната ${room.roomIndex + 1}] Ошибка выбора: ${failedSelections.map(f => `P${f.playerIndex + 1}=${f.status}`).join(', ')}`);
+            }
+            
+            if (successfulSelections.length > 0) {
+                console.log(`[Комната ${room.roomIndex + 1}] Бочки выбраны: ${successfulSelections.length}/${playerTokens.length} игроков`);
                 selectionRound1Results.push({
                     success: true,
                     roomId: room.roomId,
                     roomIndex: room.roomIndex,
-                    barrels1: barrels1,
-                    user1Token: user1Token,
-                    user2Token: user2Token
+                    players: successfulSelections,
+                    // Используем первого игрока для буста (как раньше)
+                    barrels1: successfulSelections[0]?.barrels,
+                    user1Token: successfulSelections[0]?.token
                 });
-            } else {
-                console.error(`[Комната ${room.roomIndex + 1}] Ошибка выбора: P1=${sel1Res.status}, P2=${sel2Res.status}`);
             }
             
         } catch (error) {
@@ -109,7 +139,7 @@ async function round1(results, socketEvents, timingStats) {
         return { success: false };
     }
     
-    // 3. 🔧 ПОКУПКА БУСТА ВО ВРЕМЯ РАУНДА (до BOOST_WINDOW_STARTED)
+        // 3. 🔧 ПОКУПКА БУСТА ВО ВРЕМЯ РАУНДА (СРАЗУ после выбора бочек)
     console.log('\n3. Покупка буста во время раунда...');
     
     const buyBoostStart = Date.now();
@@ -119,12 +149,13 @@ async function round1(results, socketEvents, timingStats) {
     // 🔧 Покупаем буст СРАЗУ после выбора бочек, не ждем никаких событий
     for (const roomResult of selectionRound1Results) {
         try {
-            const user1Token = roomResult.user1Token;
-            if (!user1Token) continue;
+            // Покупаем буст для ПЕРВОГО игрока в комнате (как и было)
+            const userToken = roomResult.user1Token;
+            if (!userToken) continue;
             
             console.log(`[Комната ${roomResult.roomIndex + 1}] Пытаемся купить буст...`);
             
-            const boostResponse = await roundApi.buyBoost(roomResult.roomId, 1, user1Token);
+            const boostResponse = await roundApi.buyBoost(roomResult.roomId, 1, userToken);
             
             if (boostResponse.success) {
                 boostsPurchased++;
@@ -145,7 +176,7 @@ async function round1(results, socketEvents, timingStats) {
     subSteps.buyBoost = (Date.now() - buyBoostStart) / 1000;
     console.log(`\nКуплено бустов: ${boostsPurchased}/${selectionRound1Results.length}`);
     
-    // 4. 🔧 Ждем BOOST_WINDOW_STARTED (сервер сам применит буст)
+    // 4. Ждем BOOST_WINDOW_STARTED (сервер автоматически применяет буст)
     console.log('\n4. Ожидание BOOST_WINDOW_STARTED (автоматическое применение буста)...');
     
     const waitBoostWindowStart = Date.now();
@@ -167,9 +198,11 @@ async function round1(results, socketEvents, timingStats) {
     subSteps.waitBoostWindow = (Date.now() - waitBoostWindowStart) / 1000;
     
     const allBoostWindowEvents = socketEvents.filter(e => e.type === 'BOOST_WINDOW_STARTED');
+    const allWeightsEvents = socketEvents.filter(e => e.type === 'WEIGHTS_REVEALED');
     console.log(`BOOST_WINDOW_STARTED получены! Событий: ${allBoostWindowEvents.length}`);
+    console.log(`WEIGHTS_REVEALED: ${allWeightsEvents.length}`);
     
-    // 🔧 Выводим эффекты буста из событий
+    // Выводим эффекты буста из событий
     for (const event of allBoostWindowEvents) {
         const room = readyRoomsList.find(r => r.roomId === event.roomId);
         if (room && event.data?.boostEffects) {
@@ -188,11 +221,6 @@ async function round1(results, socketEvents, timingStats) {
         await sleep(2000);
         const newEvents = socketEvents.slice(eventsBeforeCompleted);
         round1CompletedEvents = newEvents.filter(e => e.type === 'ROUND_COMPLETED');
-        
-        const elapsed = Math.floor((Date.now() - waitRound1) / 1000);
-        if (elapsed % 5 === 0) {
-            console.log(`  Прошло ${elapsed}с, ROUND_COMPLETED: ${round1CompletedEvents.length}/${readyRoomsList.length}`);
-        }
     }
     
     const allCompletedEvents = socketEvents.filter(e => e.type === 'ROUND_COMPLETED');
@@ -226,24 +254,12 @@ async function round1(results, socketEvents, timingStats) {
     
     subSteps.checkResults = (Date.now() - checkResultsStart) / 1000;
     
-    // 7. 🔧 Ждем WEIGHTS_REVEALED (может прийти после)
-    const allWeightsEvents = socketEvents.filter(e => e.type === 'WEIGHTS_REVEALED');
-    if (allWeightsEvents.length > 0) {
-        console.log(`\nWEIGHTS_REVEALED получены! Событий: ${allWeightsEvents.length}`);
-        for (const event of allWeightsEvents) {
-            const room = readyRoomsList.find(r => r.roomId === event.roomId);
-            if (room && event.data?.barrelWeights) {
-                console.log(`[Комната ${room.roomIndex + 1}] Веса:`, event.data.barrelWeights);
-            }
-        }
-    }
-    
     console.log(`\n=== РЕЗУЛЬТАТЫ РАУНДА 1 ===`);
     console.log(`Готово комнат: ${roomsReady.size}/${successfulRooms.length}`);
     console.log(`Выбор бочек: ${selectionRound1Results.length}/${readyRoomsList.length}`);
-    console.log(`Куплено бустов: ${boostsPurchased}`);
-    console.log(`BOOST_WINDOW_STARTED: ${allBoostWindowEvents.length}`);
     console.log(`WEIGHTS_REVEALED: ${allWeightsEvents.length}`);
+    console.log(`BOOST_WINDOW_STARTED: ${allBoostWindowEvents.length}`);
+    console.log(`Куплено бустов: ${boostsPurchased}`);
     console.log(`ROUND_COMPLETED: ${allCompletedEvents.length}`);
     console.log(`Результаты получены: ${roomsWithResultsRound1}/${readyRoomsList.length}`);
     
@@ -261,9 +277,9 @@ async function round1(results, socketEvents, timingStats) {
         stats: {
             roomsReady: roomsReady.size,
             selectionCount: selectionRound1Results.length,
-            boostsPurchased,
-            boostWindowCount: allBoostWindowEvents.length,
             weightsCount: allWeightsEvents.length,
+            boostWindowCount: allBoostWindowEvents.length,
+            boostsPurchased,
             completedCount: allCompletedEvents.length,
             resultsCount: roomsWithResultsRound1
         }

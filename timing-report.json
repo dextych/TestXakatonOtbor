@@ -1,25 +1,25 @@
 {
-  "timestamp": "2026-04-22T22:21:45.047Z",
-  "gameTimeSec": 154.76000000000002,
-  "activeTimeSec": 12.048,
-  "totalTimeSec": 163.685,
+  "timestamp": "2026-04-23T12:25:59.353Z",
+  "gameTimeSec": 151.62099999999998,
+  "activeTimeSec": 11.21,
+  "totalTimeSec": 167.998,
   "steps": {
-    "roomCreation": 0.319,
-    "playerJoin": 1.734,
-    "stateCheck": 1.84,
-    "botFill": 58.779,
+    "roomCreation": 0.314,
+    "playerJoin": 1.421,
+    "stateCheck": 1.35,
+    "botFill": 52.241,
     "round1": {
-      "total": 42.104,
-      "waitRoundStart": 2.043,
-      "selection": 4.346,
-      "buyBoost": 2.415,
-      "waitBoostWindow": 25.228,
-      "checkResults": 1.917
+      "total": 44.687,
+      "waitRoundStart": 2.081,
+      "selection": 4.236,
+      "buyBoost": 1.643,
+      "waitBoostWindow": 27.295,
+      "checkResults": 1.265
     },
     "round2": {
-      "total": 53.877,
-      "selection": 1.394,
-      "waitCompleted": 40.173
+      "total": 54.693,
+      "selection": 2.246,
+      "waitCompleted": 40.094
     }
   },
   "rooms": {

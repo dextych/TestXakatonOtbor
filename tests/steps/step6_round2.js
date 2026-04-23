@@ -1,5 +1,5 @@
-const roundApi = require('../api/roundApi');
-const config = require('../config/testConfig');
+const roundApi = require('../../api/roundApi');
+const config = require('../../config/testConfig');
 const Logger = require('../utils/logger');
 const { sleep } = require('../utils/helpers');
 
@@ -10,6 +10,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     Logger.header('РАУНД 2');
     
     const successfulRooms = results.filter(r => r.success);
+    const playersPerLobby = config.PLAYERS_PER_LOBBY;
     
     if (!round1Results || !round1Results.roundResults) {
         console.log('Нет результатов первого раунда, пропускаем');
@@ -28,18 +29,24 @@ async function round2(results, round1Results, socketEvents, timingStats) {
         const result = roomResult.result;
         const realPlayers = result.scores?.filter(s => !s.isBot) || [];
         
-        const player1Qualified = realPlayers.some(p => p.rank === 1);
-        const player2Qualified = realPlayers.some(p => p.rank === 2);
+        // 🔧 Определяем кто из N игроков прошел
+        const playersQualified = [];
+        for (let i = 0; i < playersPerLobby; i++) {
+            const qualified = realPlayers.some(p => p.rank === i + 1);
+            playersQualified.push(qualified);
+        }
         
-        if (player1Qualified || player2Qualified) {
+        const anyQualified = playersQualified.some(q => q);
+        
+        if (anyQualified) {
             qualifiedRooms.push({
                 ...room,
-                player1Qualified,
-                player2Qualified
+                playersQualified: playersQualified  // Массив булевых значений
             });
         }
         
-        console.log(`[Комната ${room.roomIndex + 1}] Игрок 1: ${player1Qualified ? 'ПРОШЁЛ' : 'ВЫБЫЛ'}, Игрок 2: ${player2Qualified ? 'ПРОШЁЛ' : 'ВЫБЫЛ'}`);
+        const qualifiedStr = playersQualified.map((q, i) => `Игрок ${i + 1}: ${q ? 'ПРОШЁЛ' : 'ВЫБЫЛ'}`).join(', ');
+        console.log(`[Комната ${room.roomIndex + 1}] ${qualifiedStr}`);
     }
     
     if (qualifiedRooms.length === 0) {
@@ -81,58 +88,41 @@ async function round2(results, round1Results, socketEvents, timingStats) {
         return { success: false };
     }
     
-    // 3. 🔧 ПАРАЛЛЕЛЬНЫЙ выбор бочек
+    // 3. 🔧 ПАРАЛЛЕЛЬНЫЙ выбор бочек для ВСЕХ прошедших игроков
     console.log('\n3. Выбор бочек в раунде 2 (параллельно)...');
     
     const selectStart = Date.now();
     
-    // Создаем промисы для всех комнат
     const selectionPromises = readyRoomsList.map(async (room) => {
         try {
-            await sleep(1000); // Задержка для каждой комнаты независимо
+            await sleep(1000); // Задержка для каждой комнаты
             
-            const roomSelections = [];
+            let roomSelections = 0;
             
-            // Параллельный выбор для обоих игроков в одной комнате
+            // 🔧 Параллельный выбор для всех прошедших игроков
             const playerPromises = [];
             
-            if (room.player1Qualified) {
-                const user1Token = config.TOKENS[room.roomIndex * 2]?.token;
-                if (user1Token) {
-                    playerPromises.push((async () => {
-                        const barrelsRes = await roundApi.getBarrels(room.roomId, 2, user1Token);
-                        if (barrelsRes.success) {
-                            const selected = barrelsRes.data.slice(0, 3).map(b => b.id);
-                            const selRes = await roundApi.selectBarrels(room.roomId, 2, selected, user1Token);
-                            if (selRes.success) {
-                                console.log(`[Комната ${room.roomIndex + 1}] Игрок 1 выбрал бочки`);
-                                return { player: 1, success: true };
-                            } else {
-                                console.error(`[Комната ${room.roomIndex + 1}] Игрок 1: ошибка выбора - ${selRes.status}`);
+            for (let i = 0; i < playersPerLobby; i++) {
+                if (room.playersQualified[i]) {
+                    const tokenIndex = room.roomIndex * playersPerLobby + i;
+                    const token = config.TOKENS[tokenIndex]?.token;
+                    
+                    if (token) {
+                        playerPromises.push((async () => {
+                            const barrelsRes = await roundApi.getBarrels(room.roomId, 2, token);
+                            if (barrelsRes.success) {
+                                const selected = barrelsRes.data.slice(0, 3).map(b => b.id);
+                                const selRes = await roundApi.selectBarrels(room.roomId, 2, selected, token);
+                                if (selRes.success) {
+                                    console.log(`[Комната ${room.roomIndex + 1}] Игрок ${i + 1} выбрал бочки`);
+                                    return { player: i + 1, success: true };
+                                } else {
+                                    console.error(`[Комната ${room.roomIndex + 1}] Игрок ${i + 1}: ошибка выбора - ${selRes.status}`);
+                                }
                             }
-                        }
-                        return { player: 1, success: false };
-                    })());
-                }
-            }
-            
-            if (room.player2Qualified) {
-                const user2Token = config.TOKENS[room.roomIndex * 2 + 1]?.token;
-                if (user2Token) {
-                    playerPromises.push((async () => {
-                        const barrelsRes = await roundApi.getBarrels(room.roomId, 2, user2Token);
-                        if (barrelsRes.success) {
-                            const selected = barrelsRes.data.slice(0, 3).map(b => b.id);
-                            const selRes = await roundApi.selectBarrels(room.roomId, 2, selected, user2Token);
-                            if (selRes.success) {
-                                console.log(`[Комната ${room.roomIndex + 1}] Игрок 2 выбрал бочки`);
-                                return { player: 2, success: true };
-                            } else {
-                                console.error(`[Комната ${room.roomIndex + 1}] Игрок 2: ошибка выбора - ${selRes.status}`);
-                            }
-                        }
-                        return { player: 2, success: false };
-                    })());
+                            return { player: i + 1, success: false };
+                        })());
+                    }
                 }
             }
             
@@ -173,7 +163,7 @@ async function round2(results, round1Results, socketEvents, timingStats) {
     // 5. 🔧 ПАРАЛЛЕЛЬНАЯ проверка финальных результатов
     console.log('\n5. Проверка финальных результатов (параллельно)...');
     
-    const roomApi = require('../api/roomApi');
+    const roomApi = require('../../api/roomApi');
     
     const statusPromises = successfulRooms.map(async (room) => {
         try {

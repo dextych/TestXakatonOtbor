@@ -1,6 +1,6 @@
 const { describe, test, expect, beforeAll } = require('@jest/globals');
-const config = require('../config/testConfig');
-const balanceApi = require('../api/balanceApi');
+const config = require('../../config/testConfig');
+const balanceApi = require('../../api/balanceApi');
 const Logger = require('../utils/logger');
 
 describe('Тестирование баланса пользователя (публичный API)', () => {

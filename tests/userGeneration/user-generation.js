@@ -1,4 +1,4 @@
-const config = require('../config/testConfig');
+const config = require('../../config/testConfig');
 
 const BASE_URL = config.BASE_URL;
 const REGISTER_URL = `${BASE_URL}/api/v1/auth/register`;

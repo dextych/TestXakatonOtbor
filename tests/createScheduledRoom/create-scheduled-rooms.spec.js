@@ -1,7 +1,7 @@
 const { describe, test, expect, beforeAll, afterAll } = require('@jest/globals');
 const SockJS = require('sockjs-client');
 const Stomp = require('stompjs');
-const config = require('../config/testConfig');
+const config = require('../../config/testConfig');
 const { TimingStats } = require('../utils/timing');
 const Logger = require('../utils/logger');
 const { sleep } = require('../utils/helpers');

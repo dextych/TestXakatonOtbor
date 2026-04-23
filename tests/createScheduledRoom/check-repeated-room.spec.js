@@ -1,5 +1,5 @@
 const { describe, test, expect, afterAll } = require('@jest/globals');
-const config = require('../config/testConfig');
+const config = require('../../config/testConfig');
 const Logger = require('../utils/logger');
 const { sleep } = require('../utils/helpers');
 

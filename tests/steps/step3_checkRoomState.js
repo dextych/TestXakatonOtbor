@@ -1,7 +1,7 @@
-const roomApi = require('../api/roomApi');
+const roomApi = require('../../api/roomApi');
 const Logger = require('../utils/logger');
 
-async function checkRoomState(results, timingStats) {
+async function checkRoomState(results, timingStats, expectedPlayers) {
     const stepStart = Date.now();
     Logger.step('Проверка состояния комнат');
     
@@ -14,12 +14,16 @@ async function checkRoomState(results, timingStats) {
             
             if (result.success) {
                 const data = result.data;
-                if (data.currentPlayerCount === 2 && data.status === 'WAITING') {
+                // 🔧 Проверяем что игроков столько, сколько ожидалось из конфига
+                if (data.currentPlayerCount === expectedPlayers && data.status === 'WAITING') {
                     correct++;
+                    console.log(`  ✅ Комната ${room.roomIndex + 1}: ${data.currentPlayerCount}/${expectedPlayers} игроков, статус ${data.status}`);
+                } else {
+                    console.log(`  ⚠️ Комната ${room.roomIndex + 1}: ${data.currentPlayerCount}/${expectedPlayers} игроков, статус ${data.status}`);
                 }
             }
         } catch (error) {
-            // Игнорируем ошибки
+            console.error(`  ❌ Комната ${room.roomIndex + 1}: ошибка проверки`);
         }
     }
     

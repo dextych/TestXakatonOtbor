@@ -13,7 +13,7 @@ const timingStats = {
     steps: {}
 };
 
-const tokens = require('../tokens.json');
+const tokens = require('../../tokens.json');
 
 const roomConfig = {
     maxPlayers: 3,

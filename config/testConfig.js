@@ -4,23 +4,23 @@ module.exports = {
     GAME_URL: 'http://92.51.23.102:8081',
     
     //АВТОРИЗАЦИЯ
-    ADMIN_TOKEN: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMmYyYzJkZi1iODNiLTQ5OWQtOTY3MC03NGIyYWEzOGExMTciLCJyb2xlcyI6WyJhZG1pbiJdLCJ1c2VybmFtZSI6ImRlbmlsIiwiaWF0IjoxNzc2OTAxMTQwLCJleHAiOjE3NzY5ODc1NDB9.cUAq0R4aV3yMX_tWTzEzReQ6LqU1JR_4HgDgLfZI-1f-tTo3jyDNs78hsHDjMMjHInQS0K9CwpZV6GGC9dZRhA',
+    ADMIN_TOKEN: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2NGYzNjZmZS1hM2VkLTRhYTQtOTQwZi1lNGRkZTI5NzMxZjEiLCJyb2xlcyI6WyJhZG1pbiJdLCJ1c2VybmFtZSI6IkRleHlMb3JubiIsImlhdCI6MTc3Njk0NDk5NiwiZXhwIjoxNzc3MDMxMzk2fQ.mHADoC3ZSYaNbh6ea0dOGAZMd9o2iIr1WvMhpIztaB31h336mpa_b6W4jZubIiKI8-b38-fQUGJXiKd6QIZhCw',
     
     //ГЕНЕРАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
     USER_GENERATION: {
-        count: 2,                          // Количество пользователей (N)
-        phonePrefix: '+7912383',            // Префикс номера телефона
-        usernamePrefix: 'dextytest',        // Префикс имени пользователя
+        count: 100,                          // Количество пользователей (N)
+        phonePrefix: '+79228310',            // Префикс номера телефона
+        usernamePrefix: 'dexytest',        // Префикс имени пользователя
         password: '123455cc',               // Общий пароль
         phonePadLength: 4                   // Длина дополнения номера (0001, 0002...)
     },
     
     //КОНФИГУРАЦИЯ КОМНАТЫ
     ROOM_CONFIG: {
-        maxPlayers: 5,
-        entryFeeAmount: 100,
+        maxPlayers: 7,
+        entryFeeAmount: 35000,
         winnerPayoutPercentage: 80,
-        boostCostAmount: 20,
+        boostCostAmount: 7000,
         boostEnabled: true,
         maxBarrelSelection: 3
     },
@@ -49,7 +49,8 @@ module.exports = {
         repeatInterval: 'EVERY_30_MIN'
     },
     
-    LOBBIES_COUNT: 1,
+    LOBBIES_COUNT: 20,
+    PLAYERS_PER_LOBBY: 5, 
     
     //ТОКЕНЫ (заполняется автоматически)
     TOKENS: require('../tokens.json')

@@ -1,4 +1,4 @@
-const config = require('../config/testConfig');
+const config = require('../../config/testConfig');
 const fs = require('fs');
 const path = require('path');
 
@@ -42,7 +42,7 @@ async function quickGetTokens() {
     const duration = (Date.now() - startTime) / 1000;
     
     // Сохраняем в файл
-    const outputPath = path.join(__dirname, '..', 'tokens.json');
+    const outputPath = path.join(__dirname, '../..', 'tokens.json');
     fs.writeFileSync(outputPath, JSON.stringify(tokens, null, 2));
     
     console.log('\n📊 Статистика:');
