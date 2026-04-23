@@ -9,7 +9,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "user-generation": "node tests/userGeneration/user-generation.js",
-    "join-room": "jest tests/joinRoomOldVersion/join-room.spec.js",
     "get-token": "node tests/getTokenUser/get-token.js",
     "create-and-join": "jest tests/mainTest/create-and-join-lobbies.spec.js",
     "create-scheduled-room": "jest tests/createScheduledRoom/create-scheduled-rooms.spec.js",

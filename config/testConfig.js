@@ -4,11 +4,11 @@ module.exports = {
     GAME_URL: 'http://92.51.23.102:8081',
     
     //АВТОРИЗАЦИЯ
-    ADMIN_TOKEN: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4ZTA3ZmQ5MC0yY2Q4LTQzNjItYjg4MS0yNGRhNTBmMWQwMWUiLCJyb2xlcyI6WyJhZG1pbiJdLCJ1c2VybmFtZSI6ItCd0LjQutC40Ycg0JrQvtGB0YLRi9C70LXQsiIsImlhdCI6MTc3Njk1ODE5NywiZXhwIjoxNzc3MDQ0NTk3fQ.YQMo3okk5bvKkXbABziZ8MNDnR-6yusdnVHNXSrLX-x4q-41QpoHb9aRVo_n6gPU9ZNo-IUGdA4yCYJDtAa0-g',
+    ADMIN_TOKEN: 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjODQ0MmUwNy1iYzJkLTQ0YTgtOTM1YS0zNjVlM2VlMjU4YWYiLCJyb2xlcyI6WyJhZG1pbiJdLCJ1c2VybmFtZSI6Im5pa2l0YVZzZVBvYnJpdG8iLCJpYXQiOjE3NzY5NjQ0MjEsImV4cCI6MTc3NzA1MDgyMX0.e-UJG0uZpCfhlr67PrtHR2COmJaFNjMtpPQKG-28Rfa_STW_BrRwg58h5vJgSh-PF0LyaBGG__TSToHmc1tA6g',
     
     //ГЕНЕРАЦИЯ ПОЛЬЗОВАТЕЛЕЙ
     USER_GENERATION: {
-        count: 100,                          // Количество пользователей (N)
+        count: 50,                          // Количество пользователей (N)
         phonePrefix: '+792283310',            // Префикс номера телефона
         usernamePrefix: 'dextytest',        // Префикс имени пользователя
         password: '123455cc',               // Общий пароль
@@ -49,8 +49,8 @@ module.exports = {
         repeatInterval: 'EVERY_30_MIN'
     },
     
-    LOBBIES_COUNT: 2,
-    PLAYERS_PER_LOBBY: 5, 
+    LOBBIES_COUNT: 12,
+    PLAYERS_PER_LOBBY: 4, 
     
     //ТОКЕНЫ (заполняется автоматически)
     TOKENS: require('../tokens.json')
